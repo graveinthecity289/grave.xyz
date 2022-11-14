@@ -53,8 +53,9 @@ local flags = {
     };
     settings = {
         ['anti_falldamage'] = false;
-        ['inf_stamina'] = false;
         ['inf_cursedenergy'] = false;
+        ['infinite_stamina'] = false;
+        ['anti_rag'] = false;
         autostats = {
             ['Melee'] = false;
             ['Stamina'] = false;
@@ -153,14 +154,6 @@ local x2 = main2:Toggle{
     end
 }
 
-local x52 = main2:Toggle{
-    Name = 'Infinite Stamina';
-    Flag = 'Infinite Stamina';
-    Callback = function(x)
-        flags.settings['inf_stamina'] = x
-    end
-}
-
 local x22 = main2:Toggle{
     Name = 'Infinite Cursed Energy';
     Flag = 'Infinite Cursed Energ';
@@ -168,6 +161,45 @@ local x22 = main2:Toggle{
         flags.settings['inf_cursedenergy'] = p
     end
 }
+
+
+local ap1 = main2:Toggle{
+    Name = 'Infinite Stamina';
+    Flag = 'Infinite Stamina';
+    Callback = function(gogogaga)
+        flags.settings['infinite_stamina'] = gogogaga
+    end
+}
+
+local xpa = main2:Toggle{
+    Name = 'Anti Ragdoll';
+    Flag = 'No Ragdoll';
+    Callback = function(aaa)
+        flags.settings['anti_rag'] = aaa
+    end
+}
+
+local poa
+poa = hookmetamethod(game, '__namecall', function(self, ...)
+    local args = {...}
+
+    if not checkcaller() and self.Name == tostring('RagdollRemoteEvent') and flag.settings['anti_rag'] then
+        return
+    end
+
+    return poa(self, ...)
+end)
+
+local pq;
+pq = hookmetamethod(game, '__namecall', function(self, ...)
+    local args = {...}
+    
+    if not checkcaller() and self.Name == tostring('OnDash') and flags.settings['infinite_stamina'] then
+        return
+    end
+    
+    return pq(self, ...)
+end)
 
 
 asm = as:Toggle{
@@ -223,7 +255,8 @@ as:Slider{
 }
 
 
-spawn(function()
+
+task.spawn(function()
     while task.wait() do
         if flags.settings.autostats['Amount'] then
             if flags.settings.autostats['Melee'] == true then
@@ -234,6 +267,7 @@ spawn(function()
                     }
                     
                     game:GetService("ReplicatedStorage").Knit.Services.attributeService.RE.IncrementAttribute:FireServer(unpack(args))
+                    wait(1)
                 until not flags.settings.autostats['Melee']
             end
             if flags.settings.autostats['Stamina'] == true then
@@ -244,6 +278,7 @@ spawn(function()
                     }
                     
                     game:GetService("ReplicatedStorage").Knit.Services.attributeService.RE.IncrementAttribute:FireServer(unpack(args))
+                    wait(1)
                 until not flags.settings.autostats['Stamina']
             end
             if flags.settings.autostats['Defense'] == true then
@@ -254,6 +289,7 @@ spawn(function()
                     }
                     
                     game:GetService("ReplicatedStorage").Knit.Services.attributeService.RE.IncrementAttribute:FireServer(unpack(args))
+                    wait(1)
                 until not flags.settings.autostats['Defense']
             end
             if flags.settings.autostats['Curse'] == true then
@@ -264,6 +300,7 @@ spawn(function()
                     }
                     
                     game:GetService("ReplicatedStorage").Knit.Services.attributeService.RE.IncrementAttribute:FireServer(unpack(args))
+                    wait(1)
                 until not flags.settings.autostats['Curse']
             end
             if flags.settings.autostats['Weapon'] == true then
@@ -274,6 +311,7 @@ spawn(function()
                     }
                     
                     game:GetService("ReplicatedStorage").Knit.Services.attributeService.RE.IncrementAttribute:FireServer(unpack(args))
+                    wait(1)
                 until not flags.settings.autostats['Weapon']
             end
         end
@@ -281,7 +319,7 @@ spawn(function()
 end)
 
 
-spawn(function()
+task.spawn(function()
     while task.wait() do
         if settings.auto_equip then
             for i,v in pairs(client.Backpack:GetChildren()) do
@@ -317,25 +355,6 @@ mt.__index = function(a , b)
 end;
 
 
-local mt = getrawmetatable(game);
-        
-make_writeable(mt);
-
-
-local old_mt = mt.__index
-
-mt.__index = function(a , b)
-    if tostring(a):match("Stamina") and flags.settings['inf_stamina'] then
-        if tostring(b):match("Value") then
-            return math.huge
-        end
-    end
-    
-    return old_mt(a , b);
-    
-end;
-
-
 local x;
 x = hookmetamethod(game, '__namecall', function(self, ...)
     local args = {...}
@@ -350,19 +369,20 @@ x = hookmetamethod(game, '__namecall', function(self, ...)
     return x(self, ...)
 end)
 
-spawn(function()
+task.spawn(function()
     pcall(function()
-    while task.wait() do
-        if ( settings.farm_mobs and settings.chosen_mob ~= nil ) then
-            if settings.a_attack == true and settings.farm_mobs then
+        while task.wait() do
+            if ( settings.farm_mobs and settings.chosen_mob ~= nil ) then
                     repeat task.wait()
                         root.CFrame = getmobDistance().HumanoidRootPart.CFrame * CFrame.new(0,-7,0) * CFrame.Angles(math.rad(90),0,0)
                         game:GetService("Players").LocalPlayer.Character.Fists.CombatHandler.Attack:FireServer(false)
-                    until not settings.a_attack or not settings.farm_mobs or not getmobDistance():IsDescendantOf(workspace)
-                elseif not settings.a_attack and settings.farm_mobs then
-                    repeat task.wait()
-                        root.CFrame = getmobDistance().HumanoidRootPart.CFrame * CFrame.new(0,-7,0) * CFrame.Angles(math.rad(90),0,0)
-                    until not settings.farm_mobs or not getmobDistance():IsDescendantOf(workspace)
+                    until not settings.a_attack or not settings.farm_mobs or not getmobDistance():IsDescendantOf(workspace) or getmobDistance().Humanoid.Health > 0
+
+                    elseif not settings.a_attack and settings.farm_mobs then
+                        repeat task.wait()
+                            root.CFrame = getmobDistance().HumanoidRootPart.CFrame * CFrame.new(0,-7,0) * CFrame.Angles(math.rad(90),0,0)
+                        until not settings.farm_mobs or not getmobDistance():IsDescendantOf(workspace) or getmobDistance().Humanoid.Health> 0
+                    end
                 end
             end
         end
