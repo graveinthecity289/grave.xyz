@@ -1,5 +1,5 @@
 local xyz = {
-  [7525610732] = ''
+  [7525610732] = 'https://raw.githubusercontent.com/graveinthecity289/grave.xyz/main/scripts/kaizen.lua'
 }
 
 if xyz[game.PlaceId] then
